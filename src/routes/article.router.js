@@ -10,10 +10,10 @@ import {
 const articleRouter = Router();
 
 articleRouter
-  .get('/', getArticles)
-  .get('/:id', getArticleById)
-  .post('/', createArticle)
-  .put('/:id', updateArticleById)
-  .delete('/:id', deleteArticleById);
+  .get("/", getArticles)
+  .get("/:articleId", getArticleById)
+  .post("/", createArticle)
+  .put("/:articleId", updateArticleById)
+  .delete("/:articleId", deleteArticleById);
 
 export default articleRouter;
