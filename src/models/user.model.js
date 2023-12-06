@@ -60,8 +60,10 @@ userSchema.pre("save", function (next) {
   next();
 });
 
-userSchema.pre("updateOne", function (next) {
-  this.getUpdate().updatedAt = new Date();
+userSchema.pre(["updateOne", "findOneAndUpdate"], function (next) {
+  const update = this.getUpdate();
+  update.$set.updatedAt = new Date();
+  update.$set.fullName = `${update.$set.firstName} ${update.$set.lastName}`;
   next();
 });
 
