@@ -28,6 +28,12 @@ const articleSchema = new mongoose.Schema({
     enum: ["sport", "games", "history"],
     required: true,
   },
+  likes: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,

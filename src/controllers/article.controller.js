@@ -136,3 +136,55 @@ export const deleteArticleById = async (req, res, next) => {
     next(err);
   }
 };
+
+
+export const likeArticle = async (req, res, next) => {
+  try {
+    const { userId, articleId } = req.params;
+    const user = await User.findById(userId);
+    const article = await Article.findById(articleId);
+
+    if (!user || !article) {
+      return res.status(404).json({ message: "User or article not found." });
+    }
+    if (user.likedArticles.includes(articleId)) {
+      return res.status(400).json({ message: "User already liked the article." });
+    }
+
+    user.likedArticles.push(articleId);
+    article.likes.push(userId);
+
+    await user.save();
+    await article.save();
+
+    res.status(200).json({ message: "Article liked successfully." });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const unlikeArticle = async (req, res, next) => {
+  try {
+    const { userId, articleId } = req.params;
+    const user = await User.findById(userId);
+    const article = await Article.findById(articleId);
+
+    if (!user || !article) {
+      return res.status(404).json({ message: "User or article not found." });
+    }
+    if (!user.likedArticles.includes(articleId)) {
+      return res.status(400).json({ message: "User has not liked the article." });
+    }
+
+    user.likedArticles.pull(articleId);
+    article.likes.pull(userId);
+
+    await user.save();
+    await article.save();
+
+    res.status(200).json({ message: "Article unliked successfully." });
+  } catch (err) {
+    next(err);
+  }
+};
+
