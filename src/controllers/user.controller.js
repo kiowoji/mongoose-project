@@ -1,4 +1,5 @@
 import User from "../models/user.model.js";
+import Article from "../models/article.model.js";
 
 export const getUsers = async (req, res, next) => {
   try {
@@ -18,11 +19,13 @@ export const getUsers = async (req, res, next) => {
   }
 };
 
-// todo: add all articles that user created
 export const getUserByIdWithArticles = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const user = await User.find({ _id: id });
+    const user = await User.findById(id).populate({
+      path: "articles",
+      select: "-_id title subtitle createdAt",
+    });
 
     if (!user) {
       return res.status(404).json({ message: "User not found." });
@@ -30,7 +33,7 @@ export const getUserByIdWithArticles = async (req, res, next) => {
 
     return res.status(200).json({
       success: true,
-      message: "Successfully retrieved user",
+      message: "Successfully retrieved user with articles",
       data: user,
     });
   } catch (err) {
@@ -80,7 +83,6 @@ export const updateUserById = async (req, res, next) => {
   }
 };
 
-// todo: remove all articles that user created
 export const deleteUserById = async (req, res, next) => {
   try {
     const id = req.params.id;
@@ -90,9 +92,9 @@ export const deleteUserById = async (req, res, next) => {
       return res.status(404).json({ message: "User not found." });
     }
 
-    res
-      .status(200)
-      .json({ message: "User deleted successfully.", data: deletedUser });
+    await Article.deleteMany({ owner: id });
+
+    res.status(200).json({ message: "User deleted successfully."});
   } catch (err) {
     next(err);
   }

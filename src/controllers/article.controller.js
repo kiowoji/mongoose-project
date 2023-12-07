@@ -11,10 +11,7 @@ export const getArticles = async (req, res, next) => {
     }
 
     const articles = await Article.find(searchConditions)
-      .populate({
-        path: "owner",
-        select: "fullName email age",
-      })
+      .populate("owner", "-_id fullName email age")
       .skip((page - 1) * limit)
       .limit(parseInt(limit, 5));
 
@@ -33,7 +30,7 @@ export const getArticleById = async (req, res, next) => {
     const { articleId } = req.params;
 
     const article = await Article.findById(articleId)
-      .populate("owner", "fullName email age")
+      .populate("owner", "-_id fullName email age")
       .exec();
 
     if (!article) {
@@ -69,7 +66,10 @@ export const createArticle = async (req, res, next) => {
 
     const savedArticle = await newArticle.save();
 
-    await User.findByIdAndUpdate(ownerId, { $inc: { numberOfArticles: 1 } });
+   await User.findOneAndUpdate(
+     { _id: ownerId },
+     { $inc: { numberOfArticles: 1 }, $push: { articles: savedArticle._id } }
+   );
 
     res.status(201).json({
       message: "Article created successfully",
@@ -127,7 +127,7 @@ export const deleteArticleById = async (req, res, next) => {
     const ownerId = article.owner;
 
     await Article.findByIdAndDelete(articleId);
-    await User.findByIdAndUpdate(ownerId, { $inc: { numberOfArticles: -1 } });
+    await User.findByIdAndUpdate(ownerId, { $inc: { numberOfArticles: -1 }, $pull: { articles: articleId }});
 
     res.status(200).json({
       message: "Article deleted successfully",
