@@ -126,8 +126,17 @@ export const deleteArticleById = async (req, res, next) => {
 
     const ownerId = article.owner;
 
+    await User.updateMany(
+      { likedArticles: articleId },
+      { $pull: { likedArticles: articleId } }
+    );
+
+    await User.findByIdAndUpdate(ownerId, {
+      $inc: { numberOfArticles: -1 },
+      $pull: { articles: articleId },
+    });
+
     await Article.findByIdAndDelete(articleId);
-    await User.findByIdAndUpdate(ownerId, { $inc: { numberOfArticles: -1 }, $pull: { articles: articleId }});
 
     res.status(200).json({
       message: "Article deleted successfully",

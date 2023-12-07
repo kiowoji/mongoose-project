@@ -86,15 +86,21 @@ export const updateUserById = async (req, res, next) => {
 export const deleteUserById = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const deletedUser = await User.findByIdAndDelete(id);
+    const user = await User.findById(id);
 
-    if (!deletedUser) {
+    if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
 
+    await Article.updateMany(
+      { _id: { $in: user.likedArticles } },
+      { $pull: { likes: id } }
+    );
+
+    await User.findByIdAndDelete(id);
     await Article.deleteMany({ owner: id });
 
-    res.status(200).json({ message: "User deleted successfully."});
+    res.status(200).json({ message: "User deleted successfully." });
   } catch (err) {
     next(err);
   }
