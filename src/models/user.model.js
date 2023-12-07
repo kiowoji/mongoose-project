@@ -50,6 +50,12 @@ const userSchema = new mongoose.Schema({
       ref: "Article",
     },
   ],
+  likedArticles: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Article",
+    },
+  ],
   createdAt: {
     type: Date,
     default: Date.now,
