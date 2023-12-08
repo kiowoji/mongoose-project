@@ -5,8 +5,7 @@ import {
   deleteArticleById,
   getArticles,
   getArticleById,
-  likeArticle,
-  unlikeArticle,
+  toggleLikeArticle
 } from '../controllers/article.controller.js';
 
 const articleRouter = Router();
@@ -17,7 +16,6 @@ articleRouter
   .post("/", createArticle)
   .put("/:articleId", updateArticleById)
   .delete("/:articleId", deleteArticleById)
-  .post("/:articleId/like/:userId", likeArticle)
-  .post("/:articleId/unlike/:userId", unlikeArticle);
+  .post("/:articleId/like/:userId", toggleLikeArticle);
 
 export default articleRouter;
